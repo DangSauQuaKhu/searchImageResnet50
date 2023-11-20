@@ -2,8 +2,10 @@ from PIL import Image
 from feature_extractor import FeatureExtractor
 from pathlib import Path
 import numpy as np
+import os
 
 if __name__ == '__main__':
+    os.environ['KMP_DUPLICATE_LIB_OK']='True'
     fe = FeatureExtractor()
 
     for img_path in sorted(Path("./static/ImageSearch").glob("*.jpg")):

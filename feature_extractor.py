@@ -1,14 +1,24 @@
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
 from tensorflow.keras.models import Model
+import tensorflow as tf
+from keras.layers import MaxPooling2D
 import numpy as np
 
 # See https://keras.io/api/applications/ for details
 
 class FeatureExtractor:
     def __init__(self):
-        base_model = VGG16(weights='imagenet')
-        self.model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
+        # base_model = ResNet50(weights='imagenet')
+        # self.model = Model(inputs=base_model.input, outputs=base_model.get_layer('fc1').output)
+       self.model=ResNet50(weights='imagenet',include_top=False,input_shape=(224,224,3))
+       self.model.trainable=False
+       self.model= tf.keras.Sequential([
+       self.model,
+        MaxPooling2D()
+        ])
+       self.model.summary()
 
     def extract(self, img):
         """
@@ -24,5 +34,5 @@ class FeatureExtractor:
         x = image.img_to_array(img)  # To np.array. Height x Width x Channel. dtype=float32
         x = np.expand_dims(x, axis=0)  # (H, W, C)->(1, H, W, C), where the first elem is the number of img
         x = preprocess_input(x)  # Subtracting avg values for each pixel
-        feature = self.model.predict(x)[0]  # (1, 4096) -> (4096, )
+        feature = self.model.predict(x).flatten()  # (1, 4096) -> (4096, )
         return feature / np.linalg.norm(feature)  # Normalize

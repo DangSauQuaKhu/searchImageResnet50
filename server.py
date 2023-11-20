@@ -4,11 +4,14 @@ from feature_extractor import FeatureExtractor
 from datetime import datetime
 from flask import Flask, request, render_template
 from pathlib import Path
+import os
 
 app = Flask(__name__)
 
 # Read image features
 fe = FeatureExtractor()
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 features = []
 img_paths = []
 for feature_path in Path("./static/feature").glob("*.npy"):
